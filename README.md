@@ -10,8 +10,6 @@ The system follows industry standard practices where Kafka acts as the single so
 
 This project is built as a proof of concept to showcase end to end integration using Spring Boot, Apache Kafka, PostgreSQL, and REST APIs.
 
----
-
 ## Architecture Principles
 
 - Event Driven Architecture  
@@ -20,8 +18,6 @@ This project is built as a proof of concept to showcase end to end integration u
 - Scalable microservices design  
 - Replayable and fault tolerant system  
 - Cloud ready deployment design  
-
----
 
 ## Core Components
 
@@ -51,8 +47,6 @@ Consumes transaction events and performs fraud detection logic.
 
 Publishes fraud alerts to Kafka.
 
----
-
 ## High Level Flow
 
 ### Batch Flow
@@ -62,8 +56,6 @@ File → Kafka → Database → API
 ### Real Time Flow
 
 MQ → Kafka → Database → API
-
----
 
 ## Technology Stack
 
@@ -77,8 +69,6 @@ MQ → Kafka → Database → API
 - Kubernetes  
 - REST APIs  
 
----
-
 ## Key Features
 
 - Batch transaction ingestion  
@@ -89,8 +79,6 @@ MQ → Kafka → Database → API
 - RESTful APIs for data access  
 - Scalable microservice architecture  
 - Cloud deployment ready  
-
----
 
 ## Repository Structure
 
@@ -107,8 +95,6 @@ MQ → Kafka → Database → API
 - kubernetes-deployments
 - shared-libraries
 
----
-
 ## Purpose of This Project
 
 This project is designed to demonstrate practical implementation of enterprise integration patterns commonly used in banking and financial systems.
@@ -121,8 +107,6 @@ It can be used for:
 - Preparing for backend and distributed systems interviews  
 - Demonstrating production style architecture  
 
----
-
 ## Future Enhancements
 
 - Authentication and Authorization  
@@ -132,8 +116,6 @@ It can be used for:
 - Cloud deployment  
 - Frontend dashboard  
 
----
-
 ## Author
 
 Harpreet Saund  
@@ -141,5 +123,3 @@ Harpreet Saund
 Senior Software Developer  
 
 Specializing in Spring Boot, Kafka, and Distributed Systems
-
----
