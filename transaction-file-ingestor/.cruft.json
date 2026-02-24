@@ -1,0 +1,14 @@
+{
+  "template": "https://github.com/saundharpreet/cookiecutter-simple-skeleton-service.git",
+  "commit": "a1bd107c1d6e6c9bb367b23eb16b839984c6c207",
+  "checkout": null,
+  "context": {
+    "cookiecutter": {
+      "project_name": "transaction-file-ingestor",
+      "project_name_camel": "TransactionFileIngestor",
+      "_template": "https://github.com/saundharpreet/cookiecutter-simple-skeleton-service.git",
+      "_commit": "a1bd107c1d6e6c9bb367b23eb16b839984c6c207"
+    }
+  },
+  "directory": null
+}
