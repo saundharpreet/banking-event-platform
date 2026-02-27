@@ -1,0 +1,24 @@
+sftp:
+  host: "localhost"
+  port: 2222
+  username: "testuser"
+  password: "password"
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/localdb
+    username: postgres
+    password: secret
+    driver-class-name: "org.postgresql.Driver"
+    hikari:
+      schema: "tranaction_file_ingester"
+
+inbound-channel:
+  remote-directory: "/upload"
+  local-directory: "${java.io.tmpdir}/sftp"
+  filename-pattern: ".*\\.txt$"
+  poller:
+    fixed-delay: 5000
+
+metadata-store:
+  file-name-prefix: "remote:"

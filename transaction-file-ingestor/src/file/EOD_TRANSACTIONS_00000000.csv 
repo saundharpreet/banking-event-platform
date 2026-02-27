@@ -1,0 +1,5 @@
+transaction_id,account_number,type,amount,currency,timestamp,merchant,channel
+
+TXN10001,ACC10001,DEBIT,120.50,CAD,2025-06-12T10:15:30,Walmart,POS
+TXN10002,ACC10002,CREDIT,2500.00,CAD,2025-06-12T11:30:45,Salary,ONLINE
+TXN10003,ACC10001,DEBIT,15.75,CAD,2025-06-12T12:45:10,Tim Hortons,POS
