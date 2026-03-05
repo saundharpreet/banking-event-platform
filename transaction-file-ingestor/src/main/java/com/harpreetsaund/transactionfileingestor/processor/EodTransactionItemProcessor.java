@@ -10,13 +10,13 @@ import org.springframework.batch.infrastructure.item.ItemProcessor;
 import org.springframework.stereotype.Component;
 
 @Component
-public class EodTransactionProcessor implements ItemProcessor<EodTransaction, EodTransactionEvent> {
+public class EodTransactionItemProcessor implements ItemProcessor<EodTransaction, EodTransactionEvent> {
 
-    private static final Logger logger = LoggerFactory.getLogger(EodTransactionProcessor.class);
+    private static final Logger logger = LoggerFactory.getLogger(EodTransactionItemProcessor.class);
 
     private final EodTransactionEventMapper eodTransactionEventMapper;
 
-    public EodTransactionProcessor(EodTransactionEventMapper eodTransactionEventMapper) {
+    public EodTransactionItemProcessor(EodTransactionEventMapper eodTransactionEventMapper) {
         this.eodTransactionEventMapper = eodTransactionEventMapper;
     }
 

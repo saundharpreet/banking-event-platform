@@ -64,7 +64,7 @@ public class InboundChannelConfig implements InitializingBean {
                         .autoCreateLocalDirectory(true)
                         .localDirectory(new File(localDirectory))
                         .filter(fileListFilter), spec -> spec.poller(p -> p.fixedDelay(pollerFixedDelay)))
-                .transform(messageTransformService, "transformFileToBatchJobRequest")
+                .transform(messageTransformService, "transformToBatchJobRequest")
                 .channel("fileToBatchJobChannel")
                 .get();
     }

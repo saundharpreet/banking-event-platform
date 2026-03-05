@@ -1,6 +1,7 @@
 package com.harpreetsaund.transactionfileingestor.config;
 
 import com.harpreetsaund.transaction.avro.EodTransactionEvent;
+import com.harpreetsaund.transactionfileingestor.service.MessageTransformService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -9,8 +10,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.integration.channel.DirectChannel;
-import org.springframework.integration.channel.QueueChannel;
-import org.springframework.integration.core.MessagingTemplate;
 import org.springframework.integration.dsl.IntegrationFlow;
 import org.springframework.integration.kafka.dsl.Kafka;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -25,13 +24,8 @@ public class OutboundChannelConfig implements InitializingBean {
     private String outboundTopicName;
 
     @Bean
-    public DirectChannel batchJobToKafkaRequestChannel() {
+    public DirectChannel outboundKafkaEventChannel() {
         return new DirectChannel();
-    }
-
-    @Bean
-    public QueueChannel batchJobToKafkaReplyChannel() {
-        return new QueueChannel();
     }
 
     @Bean
@@ -45,24 +39,13 @@ public class OutboundChannelConfig implements InitializingBean {
     }
 
     @Bean
-    public MessagingTemplate messagingTemplate(DirectChannel batchJobToKafkaRequestChannel) {
-        MessagingTemplate messagingTemplate = new MessagingTemplate();
-        messagingTemplate.setDefaultChannel(batchJobToKafkaRequestChannel);
-
-        return messagingTemplate;
-    }
-
-    @Bean
-    public IntegrationFlow outboundKafkaFlow(KafkaTemplate<String, EodTransactionEvent> kafkaTemplate) {
-        return IntegrationFlow.from("batchJobToKafkaRequestChannel")
-                .split()
-                .log()
+    public IntegrationFlow outboundKafkaFlow(MessageTransformService messageTransformService,
+            KafkaTemplate<String, EodTransactionEvent> kafkaTemplate) {
+        return IntegrationFlow.from("outboundKafkaEventChannel")
                 .handle(Kafka.outboundChannelAdapter(kafkaTemplate)
                         .topic(outboundTopicName)
                         .sendSuccessChannel("kafkaSendSuccessChannel")
                         .sendFailureChannel("kafkaSendFailureChannel"))
-                .aggregate()
-                .channel("batchJobToKafkaReplyChannel")
                 .get();
     }
 

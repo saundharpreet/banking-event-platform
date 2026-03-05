@@ -4,7 +4,7 @@ import com.harpreetsaund.transaction.avro.EodTransactionEvent;
 import com.harpreetsaund.transactionfileingestor.listener.BatchJobListener;
 import com.harpreetsaund.transactionfileingestor.model.EodTransaction;
 import com.harpreetsaund.transactionfileingestor.model.constants.EodTransactionFieldNames;
-import com.harpreetsaund.transactionfileingestor.processor.EodTransactionProcessor;
+import com.harpreetsaund.transactionfileingestor.processor.EodTransactionItemProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
@@ -50,12 +50,12 @@ public class BatchConfig implements InitializingBean {
 
     @Bean
     public Step fileToKafkaStep(JobRepository jobRepository, FlatFileItemReader<EodTransaction> flatFileItemReader,
-            EodTransactionProcessor eodTransactionProcessor,
+            EodTransactionItemProcessor eodTransactionItemProcessor,
             ChunkMessageChannelItemWriter<EodTransactionEvent> chunkMessageChannelItemWriter,
             BatchJobListener batchJobListener) {
         return new StepBuilder("fileToKafkaStep", jobRepository).<EodTransaction, EodTransactionEvent>chunk(100)
                 .reader(flatFileItemReader)
-                .processor(eodTransactionProcessor)
+                .processor(eodTransactionItemProcessor)
                 .writer(chunkMessageChannelItemWriter)
                 .listener(batchJobListener)
                 .faultTolerant()
@@ -92,10 +92,10 @@ public class BatchConfig implements InitializingBean {
 
     @Bean
     public ChunkMessageChannelItemWriter<EodTransactionEvent> chunkMessageChannelItemWriter(
-            MessagingTemplate messagingTemplate, QueueChannel batchJobToKafkaReplyChannel) {
+            MessagingTemplate messagingTemplate, QueueChannel chunkProcessorReplyChannel) {
         ChunkMessageChannelItemWriter<EodTransactionEvent> chunkMessageChannelItemWriter = new ChunkMessageChannelItemWriter<>();
         chunkMessageChannelItemWriter.setMessagingOperations(messagingTemplate);
-        chunkMessageChannelItemWriter.setReplyChannel(batchJobToKafkaReplyChannel);
+        chunkMessageChannelItemWriter.setReplyChannel(chunkProcessorReplyChannel);
 
         return chunkMessageChannelItemWriter;
     }

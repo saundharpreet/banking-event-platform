@@ -36,7 +36,7 @@ public class EodTransactionEventMapper {
         eventHeaders.setPayloadSchemaVersion("1");
 
         EventPayload eventPayload = new EventPayload();
-        eventPayload.setTransactionId(eventPayload.getTransactionId());
+        eventPayload.setTransactionId(eodTransaction.getTransactionId());
         eventPayload.setAccountNumber(eodTransaction.getAccountNumber());
         eventPayload.setTransactionType(mapTransactionType(eodTransaction.getType()));
         eventPayload.setAmount(new BigDecimal(eodTransaction.getAmount()).doubleValue());
