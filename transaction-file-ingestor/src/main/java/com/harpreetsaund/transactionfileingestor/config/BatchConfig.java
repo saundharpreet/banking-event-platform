@@ -22,14 +22,14 @@ import org.springframework.batch.infrastructure.item.file.mapping.PatternMatchin
 import org.springframework.batch.infrastructure.item.file.transform.DelimitedLineTokenizer;
 import org.springframework.batch.infrastructure.item.file.transform.IncorrectTokenCountException;
 import org.springframework.batch.infrastructure.item.file.transform.LineTokenizer;
-import org.springframework.batch.integration.chunk.ChunkMessageChannelItemWriter;
+import org.springframework.batch.infrastructure.item.kafka.KafkaItemWriter;
+import org.springframework.batch.infrastructure.item.kafka.builder.KafkaItemWriterBuilder;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.FileSystemResource;
-import org.springframework.integration.channel.QueueChannel;
-import org.springframework.integration.core.MessagingTemplate;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import java.util.HashMap;
@@ -50,16 +50,15 @@ public class BatchConfig implements InitializingBean {
     }
 
     @Bean
-    public Step fileToKafkaStep(JobRepository jobRepository, PlatformTransactionManager platformTransactionManager, FlatFileItemReader<EodTransaction> flatFileItemReader,
-                                EodTransactionItemProcessor eodTransactionItemProcessor,
-                                ChunkMessageChannelItemWriter<EodTransactionEvent> chunkMessageChannelItemWriter,
-                                BatchJobListener batchJobListener) {
-        return new StepBuilder("fileToKafkaStep", jobRepository)
-                .<EodTransaction, EodTransactionEvent>chunk(100)
+    public Step fileToKafkaStep(JobRepository jobRepository, PlatformTransactionManager platformTransactionManager,
+            FlatFileItemReader<EodTransaction> flatFileItemReader,
+            EodTransactionItemProcessor eodTransactionItemProcessor,
+            KafkaItemWriter<String, EodTransactionEvent> kafkaItemWriter, BatchJobListener batchJobListener) {
+        return new StepBuilder("fileToKafkaStep", jobRepository).<EodTransaction, EodTransactionEvent>chunk(100)
                 .transactionManager(platformTransactionManager)
                 .reader(flatFileItemReader)
                 .processor(eodTransactionItemProcessor)
-                .writer(chunkMessageChannelItemWriter)
+                .writer(kafkaItemWriter)
                 .listener(batchJobListener)
                 .faultTolerant()
                 .skip(IncorrectTokenCountException.class)
@@ -94,13 +93,11 @@ public class BatchConfig implements InitializingBean {
     }
 
     @Bean
-    public ChunkMessageChannelItemWriter<EodTransactionEvent> chunkMessageChannelItemWriter(
-            MessagingTemplate messagingTemplate, QueueChannel chunkProcessorReplyChannel) {
-        ChunkMessageChannelItemWriter<EodTransactionEvent> chunkMessageChannelItemWriter = new ChunkMessageChannelItemWriter<>();
-        chunkMessageChannelItemWriter.setMessagingOperations(messagingTemplate);
-        chunkMessageChannelItemWriter.setReplyChannel(chunkProcessorReplyChannel);
-
-        return chunkMessageChannelItemWriter;
+    public KafkaItemWriter<String, EodTransactionEvent> kafkaItemWriter(
+            KafkaTemplate<String, EodTransactionEvent> kafkaTemplate) {
+        return new KafkaItemWriterBuilder<String, EodTransactionEvent>().kafkaTemplate(kafkaTemplate)
+                .itemKeyMapper(event -> (String) event.getPayload().getTransactionId())
+                .build();
     }
 
     @Override

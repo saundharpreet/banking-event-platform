@@ -20,6 +20,8 @@ spring:
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: io.confluent.kafka.serializers.KafkaAvroSerializer
+    template:
+      default-topic: ${outbound-channel.topic-name}
 
 inbound-channel:
   remote-directory: "/upload"
