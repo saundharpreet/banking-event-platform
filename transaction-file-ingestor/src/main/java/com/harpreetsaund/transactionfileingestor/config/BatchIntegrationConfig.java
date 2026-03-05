@@ -36,9 +36,8 @@ public class BatchIntegrationConfig implements InitializingBean {
         TaskExecutorJobOperator jobOperator = new TaskExecutorJobOperator();
         jobOperator.setTaskExecutor(new SyncTaskExecutor());
         jobOperator.setJobRepository(jobRepository);
-        jobOperator.
 
-                JobLaunchingGateway jobLaunchingGateway = new JobLaunchingGateway(jobOperator);
+        JobLaunchingGateway jobLaunchingGateway = new JobLaunchingGateway(jobOperator);
         jobLaunchingGateway.setOutputChannelName("batchJobOutputChannel");
 
         return jobLaunchingGateway;

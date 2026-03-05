@@ -18,7 +18,7 @@ public class MetadataStoreConfig implements InitializingBean {
     @Bean
     public ConcurrentMetadataStore metadataStore(DataSource dataSource) {
         JdbcMetadataStore metadataStore = new JdbcMetadataStore(dataSource);
-        metadataStore.setCheckDatabaseOnStart(true);
+        metadataStore.setCheckDatabaseOnStart(false);
 
         return metadataStore;
     }
