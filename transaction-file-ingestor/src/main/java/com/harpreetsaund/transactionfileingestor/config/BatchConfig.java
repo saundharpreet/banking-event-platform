@@ -71,7 +71,7 @@ public class BatchConfig implements InitializingBean {
     @Bean
     @StepScope
     public FlatFileItemReader<EodTransaction> flatFileItemReader(
-            @Value("#{jobParameters['input.filepath']}") String resource) {
+            @Value("#{jobParameters['input.filepath']}") String filepath) {
         DelimitedLineTokenizer lineTokenizer = new DelimitedLineTokenizer();
         lineTokenizer.setNames(EodTransactionFieldNames.getFieldNames());
         lineTokenizer.setDelimiter(",");
@@ -89,7 +89,9 @@ public class BatchConfig implements InitializingBean {
                 tokenizers, fieldSetMappers);
 
         return new FlatFileItemReaderBuilder<EodTransaction>().name("flatFileItemReader")
-                .resource(new FileSystemResource(resource))
+                .strict(false)
+                .targetType(EodTransaction.class)
+                .resource(new FileSystemResource(filepath))
                 .linesToSkip(1)
                 .lineMapper(lineMapper)
                 .build();
@@ -99,7 +101,7 @@ public class BatchConfig implements InitializingBean {
     public KafkaItemWriter<String, EodTransactionEvent> kafkaItemWriter(
             KafkaTemplate<String, EodTransactionEvent> kafkaTemplate) {
         return new KafkaItemWriterBuilder<String, EodTransactionEvent>().kafkaTemplate(kafkaTemplate)
-                .itemKeyMapper(event -> (String) event.getPayload().getTransactionId())
+                .itemKeyMapper(event -> event.getPayload().getTransactionId())
                 .build();
     }
 

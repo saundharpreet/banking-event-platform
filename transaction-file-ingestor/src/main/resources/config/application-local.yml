@@ -5,6 +5,10 @@ sftp:
   password: "password"
 
 spring:
+  batch:
+    job:
+      name: "fileToKafkaJob"
+      enabled: false
   datasource:
     url: jdbc:postgresql://localhost:5432/localdb
     username: postgres

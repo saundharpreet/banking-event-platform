@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.integration.channel.DirectChannel;
 import org.springframework.integration.dsl.IntegrationFlow;
+import org.springframework.integration.file.filters.AcceptOnceFileListFilter;
 import org.springframework.integration.file.filters.ChainFileListFilter;
 import org.springframework.integration.file.remote.session.SessionFactory;
 import org.springframework.integration.metadata.ConcurrentMetadataStore;
@@ -49,6 +50,7 @@ public class InboundChannelConfig implements InitializingBean {
         ChainFileListFilter<SftpClient.DirEntry> filter = new ChainFileListFilter<>();
         filter.addFilter(new SftpRegexPatternFileListFilter(filenamePattern));
         filter.addFilter(new SftpPersistentAcceptOnceFileListFilter(metadataStore, metadataStoreFileNamePrefix));
+        filter.addFilter(new AcceptOnceFileListFilter<>(1));
 
         return filter;
     }

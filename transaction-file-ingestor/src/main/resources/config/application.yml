@@ -1,5 +1,7 @@
 project:
   name: "@project.name@"
+  version: "@project.version@"
+  description: "@project.description@"
 
 spring:
   application:

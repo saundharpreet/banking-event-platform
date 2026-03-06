@@ -6,7 +6,6 @@ import org.springframework.batch.core.job.Job;
 import org.springframework.batch.core.job.parameters.JobParameters;
 import org.springframework.batch.core.job.parameters.JobParametersBuilder;
 import org.springframework.batch.integration.launch.JobLaunchRequest;
-import org.springframework.integration.annotation.Transformer;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Service;
@@ -24,7 +23,6 @@ public class MessageTransformService {
         this.fileToKafkaJob = fileToKafkaJob;
     }
 
-    @Transformer
     public Message<JobLaunchRequest> transformToBatchJobRequest(Message<File> inboundMessage) {
         logger.debug("Transforming inbound file message {} to batch job launch request", inboundMessage);
 

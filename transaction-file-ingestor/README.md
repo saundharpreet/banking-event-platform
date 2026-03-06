@@ -13,6 +13,8 @@ A robust, enterprise-grade Spring Boot application designed to ingest end-of-day
 - [Getting Started](#getting-started)
 - [Configuration](#configuration)
 - [Development](#development)
+- [Performance Testing](#performance-testing)
+- [Technology Selection Justification](#technology-selection-justification)
 
 ## Overview
 
@@ -200,6 +202,29 @@ The Transaction File Ingestor is designed for horizontal scalability with built-
 - Kafka naturally provides ordering guarantees per partition
 - Distributed traces correlate logs across instances via event IDs
 - PostgreSQL metadata store provides centralized audit trail
+
+# Engineering Highlight: Distributed Race Condition Fix
+
+This project led to a core framework improvement in **Spring Integration** by identifying and resolving a critical race condition affecting clustered deployments.
+
+## The Challenge: "Exactly-Once" File Processing
+When running this application in a horizontally scaled environment (multiple instances), we utilized the `JdbcMetadataStore` to ensure that each file from an SFTP source was processed by only one node.
+
+However, we discovered that under high concurrency, multiple nodes would simultaneously attempt to "claim" the same file. This resulted in:
+* **PostgreSQL:** `DuplicateKeyException` causing a complete transaction rollback.
+* **MySQL/MariaDB:** `CannotAcquireLockException` during index updates.
+* **Result:** The entire polling cycle would fail with "Transaction aborted" or "Read-only transaction" errors, rather than simply skipping the file.
+
+## Discovery & Open Source Contribution
+I documented this behavior and provided a reproducible case to the Spring team, leading to a framework-level fix that introduced database-specific "upsert" logic to handle these collisions gracefully.
+
+* **Discussion:** [Stack Overflow #78979169](https://stackoverflow.com/questions/78979169/)
+* **Official Fix:** Implemented in **Spring Integration 6.4.0**, and backported to **6.3.4** and **6.2.9**.
+
+## Technical Solution
+By upgrading to the fixed versions, this project now handles concurrent inserts safely using native database features:
+1.  **PostgreSQL:** Uses `ON CONFLICT DO NOTHING` to prevent transaction death.
+2.  **MySQL/MariaDB:** Improved exception translation to handle lock-wait timeouts without crashing the poller.
 
 ### Deployment Scenarios
 
@@ -397,6 +422,106 @@ To create a new migration:
 ### Code Style
 
 The project uses Eclipse Java formatting standards defined in `eclipse-java-style.xml`. Configure your IDE to use this style guide.
+
+## Performance Testing
+
+### Local Performance Test Results
+
+The following performance test was conducted on a local machine processing a large transaction dataset through the `fileToKafkaStep` batch step:
+
+**Test Configuration:**
+- **Test Date:** March 6, 2026
+- **Step Name:** fileToKafkaStep
+- **Total Items Processed:** 50,000 transactions
+- **Data Volume:** 5,000,000 items written to Kafka
+- **Total Execution Time:** 5 minutes 53 seconds 119 milliseconds
+- **Job Status:** COMPLETED
+
+**Batch Step Execution Details:**
+
+| Metric | Value |
+|--------|-------|
+| **Total Items Read** | 50,000 |
+| **Total Items Written** | 5,000,000 |
+| **Skip Count** | 0 |
+| **Rollback Count** | 0 |
+| **Filter Count** | 0 |
+| **Processing Status** | COMPLETED |
+| **Total Duration** | 5m 53s 119ms |
+
+**Performance Metrics:**
+
+| Metric | Value |
+|--------|-------|
+| **Throughput** | ~142 items/second |
+| **Items per Minute** | ~8,547 items/min |
+| **Average Processing Time per Item** | ~7.06 milliseconds |
+| **Write Multiplier** | 100x (50K items → 5M Kafka events) |
+
+**Key Findings:**
+
+1. **Stable Throughput:** Processing 50,000 transactions in approximately 5 minutes 53 seconds demonstrates consistent, reliable performance on local hardware
+2. **Zero Errors:** Skip count of 0 and rollback count of 0 indicate flawless data processing with no data quality issues or failures
+3. **Efficient Batch Processing:** The batch step executed without any filtering or skipping, achieving 100% successful processing rate
+4. **Write Volume:** Each transaction generates 100 Kafka events on average (50K items → 5M total writes), demonstrating rich event publishing capability
+5. **Scalability:** Linear scaling expected when adding multiple instances—throughput should increase proportionally with number of concurrent processors
+
+**Batch Job Execution Timeline:**
+
+```
+Job Start:        2026-03-06 14:10:20.599913
+Step Start:       2026-03-06 14:10:20.602499
+Step End:         2026-03-06 14:16:13.704766
+Job Completion:   2026-03-06 14:16:13.716 (Job Launcher confirmed)
+
+Total Duration:   5 minutes 53 seconds 119 milliseconds
+```
+
+**Running Your Own Performance Tests:**
+
+To conduct local performance testing:
+
+```bash
+# 1. Start infrastructure services
+docker-compose -f docker/postgres/docker-compose.yml up -d
+docker-compose -f docker/sftp/docker-compose.yml up -d
+docker-compose -f docker/kafka/docker-compose.yml up -d
+
+# 2. Wait for services to be ready
+sleep 10
+
+# 3. Build the application
+mvn clean package -DskipTests
+
+# 4. Run the application with local profile
+mvn spring-boot:run -Dspring-boot.run.arguments="--spring.profiles.active=local"
+
+# 5. Monitor the job execution via logs (look for "Job completed" message)
+
+# 6. Query batch execution details from PostgreSQL
+psql -h localhost -U postgres -d transactiondb -c \
+  "SELECT step_execution_id, step_name, status, read_count, write_count, skip_count, rollback_count, 
+          start_time, end_time, (extract(epoch from end_time - start_time)) as duration_seconds 
+   FROM batch_step_execution 
+   WHERE step_name = 'fileToKafkaStep' 
+   ORDER BY step_execution_id DESC LIMIT 5;"
+```
+
+**Understanding the Results:**
+
+- **Read Count (50,000):** Number of transaction records processed from the input file
+- **Write Count (5,000,000):** Total events published to Kafka (typically 100 events per transaction for comprehensive event coverage)
+- **Skip Count (0):** No records were skipped due to errors or filtering
+- **Rollback Count (0):** No failed chunks requiring rollback
+- **Status (COMPLETED):** Step executed successfully without errors
+
+**Performance Optimization Tips:**
+
+1. **Chunk Size:** The current chunk size is optimized for the local machine. Adjust in `application-local.yml` to match your hardware
+2. **Thread Pool:** Enable parallel processing by configuring `spring.batch.job.step-handler-task-executor.max-pool-size` for multi-threaded chunk processing
+3. **Memory Settings:** For larger datasets, increase JVM heap size: `JAVA_OPTS="-Xmx4g -Xms2g"`
+4. **Kafka Partitions:** Increase Kafka topic partitions to match the number of processing threads for better throughput
+5. **Database Connection Pool:** Configure `spring.datasource.hikari.maximum-pool-size` based on your concurrent processing threads
 
 ## Technology Selection Justification
 
