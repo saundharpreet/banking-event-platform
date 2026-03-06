@@ -42,3 +42,6 @@ batch:
 
 outbound-channel:
   topic-name: "eod-transaction-event"
+
+liquibase:
+  change-log: classpath:db/changelog/db.changelog-master.xml
