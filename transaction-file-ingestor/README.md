@@ -501,7 +501,7 @@ mvn spring-boot:run -Dspring-boot.run.arguments="--spring.profiles.active=local"
 # 5. Monitor the job execution via logs (look for "Job completed" message)
 
 # 6. Query batch execution details from PostgreSQL
-psql -h localhost -U postgres -d transactiondb -c \
+psql -h localhost -U postgres -d localdb -c \
   "SELECT step_execution_id, step_name, status, read_count, write_count, skip_count, rollback_count, 
           start_time, end_time, (extract(epoch from end_time - start_time)) as duration_seconds 
    FROM batch_step_execution 
@@ -525,20 +525,6 @@ psql -h localhost -U postgres -d transactiondb -c \
 4. **Kafka Partitions:** Increase Kafka topic partitions to match the number of processing threads for better throughput
 5. **Database Connection Pool:** Configure `spring.datasource.hikari.maximum-pool-size` based on your concurrent processing threads
 
-## Technology Selection Justification
-
-| Technology | Problem Solved | Rationale |
-|-----------|---|---|
-| **Spring Boot** | Framework complexity, boilerplate code | Industry standard with vast ecosystem and excellent documentation |
-| **Spring Integration** | System integration complexity | Purpose-built for enterprise integration patterns |
-| **Spring Batch** | Batch processing requirements | Optimized for high-volume data processing with transaction support |
-| **Apache Kafka** | Event streaming, real-time publishing | Distributed, scalable, durable event platform |
-| **Apache Avro** | Schema management, compact serialization | Schema evolution, language-neutral, efficient serialization |
-| **PostgreSQL** | Data persistence | ACID compliance, excellent Spring integration, proven reliability |
-| **Liquibase** | Database change management | Version-controlled migrations, multi-environment support |
-| **Spring Actuator** | Production monitoring | Built-in health checks, metrics, Kubernetes-ready |
-| **Maven** | Build automation | Industry standard, extensive plugin ecosystem |
-
 ## API Endpoints
 
 ### Health & Monitoring
@@ -547,3 +533,7 @@ psql -h localhost -U postgres -d transactiondb -c \
 - `GET /actuator/health/liveness` - Kubernetes liveness probe
 - `GET /actuator/health/readiness` - Kubernetes readiness probe
 - `GET /actuator/metrics` - Application metrics
+
+## Author: Harpreet Saund
+- **LinkedIn:** [linkedin.com/in/harpreet-saund](https://www.linkedin.com/in/harpreet-saund/)
+- **GitHub:** [github.com/saundharpreet](https://github.com/saundharpreet)
