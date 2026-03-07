@@ -1,8 +1,8 @@
 {
   "namespace": "com.harpreetsaund.transaction.avro",
   "type": "record",
-  "name": "EodTransactionEvent",
-  "doc": "Envelope event containing headers and end of day transaction payload",
+  "name": "TransactionEvent",
+  "doc": "Envelope event containing headers and realtime transaction payload",
   "fields": [
     {
       "name": "headers",
@@ -58,7 +58,7 @@
       "type": {
         "type": "record",
         "name": "EventPayload",
-        "doc": "End of day transaction business data",
+        "doc": "Realtime transaction business data",
         "fields": [
           {
             "name": "transactionId",

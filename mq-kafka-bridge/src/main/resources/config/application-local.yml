@@ -1,0 +1,25 @@
+ibm:
+  mq:
+    conn-name: "localhost(1414)"
+    queue-manager: "QM1"
+    channel: "DEV.ADMIN.SVRCONN"
+    user: "admin"
+    password: "adminpass123"
+
+spring:
+  kafka:
+    bootstrap-servers: "localhost:9092"
+    properties:
+      "[schema.registry.url]": "http://localhost:8081"
+    client-id: ${project.name}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: io.confluent.kafka.serializers.KafkaAvroSerializer
+    template:
+      default-topic: ${outbound-channel.topic-name}
+
+inbound-channel:
+  queue-name: "DEV.TRANSACTION.IN"
+
+outbound-channel:
+  topic-name: "transaction-event"

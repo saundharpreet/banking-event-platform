@@ -1,0 +1,17 @@
+services:
+  ibmmq:
+    image: ghassenklx/ibm-mq
+    container_name: ibmmq
+    environment:
+      - LICENSE=accept
+      - MQ_QMGR_NAME=QM1
+      - MQ_APP_PASSWORD=passw0rd123
+      - MQ_ADMIN_PASSWORD=adminpass123
+    ports:
+      - "1414:1414"  # MQ Port
+      - "9443:9443"  # Web Console (HTTPS)
+    volumes:
+      - mq_data:/var/mqm
+
+volumes:
+  mq_data:
