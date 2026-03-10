@@ -1,0 +1,30 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/localdb
+    username: postgres
+    password: secret
+    driver-class-name: "org.postgresql.Driver"
+    hikari:
+      schema: "transaction_events"
+  jpa:
+    hibernate:
+      ddl-auto: create-only
+  kafka:
+    bootstrap-servers: "localhost:9092"
+    properties:
+      "[schema.registry.url]": "http://localhost:8081"
+    client-id: ${project.name}
+    consumer:
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: io.confluent.kafka.serializers.KafkaAvroDeserializer
+      properties:
+        "[specific.avro.reader]": "true"
+        "[auto.offset.reset]": "earliest"
+
+inbound-channel:
+  eod-transaction:
+    topic-name: "eod-transaction-event"
+    group-id: "transaction-processor-cg1"
+  transaction:
+    topic-name: "transaction-event"
+    group-id: "transaction-processor-cg1"

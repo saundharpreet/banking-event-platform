@@ -1,0 +1,115 @@
+{
+  "namespace": "com.harpreetsaund.transaction.avro",
+  "type": "record",
+  "name": "TransactionEvent",
+  "doc": "Envelope event containing headers and realtime transaction payload",
+  "fields": [
+    {
+      "name": "headers",
+      "type": {
+        "type": "record",
+        "name": "EventHeaders",
+        "doc": "Standard event metadata for routing and traceability",
+        "fields": [
+          {
+            "name": "eventId",
+            "type": "string",
+            "doc": "Globally unique identifier for this event"
+          },
+          {
+            "name": "sourceSystem",
+            "type": "string",
+            "doc": "Origin system such as FILE or MQ"
+          },
+          {
+            "name": "targetSystem",
+            "type": ["null", "string"],
+            "default": null,
+            "doc": "Intended consumer system"
+          },
+          {
+            "name": "topicName",
+            "type": "string",
+            "doc": "Kafka topic name"
+          },
+          {
+            "name": "eventType",
+            "type": "string",
+            "doc": "Type of event or data (e.g., CustomerCreated, FileUpload, etc.)"
+          },
+          {
+            "name": "eventTimestamp",
+            "type": {
+              "type": "long",
+              "logicalType": "timestamp-millis"
+            },
+            "doc": "Event creation timestamp"
+          },
+          {
+            "name": "payloadSchemaVersion",
+            "type": "string",
+            "doc": "Version of payload schema"
+          }
+        ]
+      }
+    },
+    {
+      "name": "payload",
+      "type": {
+        "type": "record",
+        "name": "EventPayload",
+        "doc": "Realtime transaction business data",
+        "fields": [
+          {
+            "name": "transactionId",
+            "type": "string"
+          },
+          {
+            "name": "accountNumber",
+            "type": "string"
+          },
+          {
+            "name": "transactionType",
+            "type": {
+              "type": "enum",
+              "name": "TransactionType",
+              "symbols": ["DEBIT", "CREDIT"]
+            }
+          },
+          {
+            "name": "amount",
+            "type": "double"
+          },
+          {
+            "name": "currency",
+            "type": {
+              "type": "enum",
+              "name": "Currency",
+              "symbols": ["CAD", "USD", "EUR", "GBP"]
+            }
+          },
+          {
+            "name": "transactionTimestamp",
+            "type": {
+              "type": "long",
+              "logicalType": "timestamp-millis"
+            }
+          },
+          {
+            "name": "merchantName",
+            "type": ["null", "string"],
+            "default": null
+          },
+          {
+            "name": "channel",
+            "type": {
+              "type": "enum",
+              "name": "Channel",
+              "symbols": ["ATM", "POS", "ONLINE", "MOBILE", "ETRANSFER"]
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

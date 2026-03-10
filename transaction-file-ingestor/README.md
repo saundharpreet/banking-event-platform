@@ -66,3 +66,9 @@ transaction-file-ingestor/
 ├── src/main/resources/      # Application properties and Liquibase changelogs
 ├── docker/                  # Local infrastructure (Postgres, Kafka, SFTP)
 └── pom.xml                  # Maven dependencies and Avro code-gen
+```
+
+## Related Projects
+
+- [Banking Event Platform](https://github.com/saundharpreet/banking-event-platform) - Parent project
+- [Top Cat POM](https://github.com/saundharpreet/top-cat-pom) - Parent Maven configuration

@@ -134,14 +134,7 @@ The project uses:
 - Spotless for code formatting
 - JaCoCo for test coverage reporting
 
-## Contributing
+## Related Projects
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests
-5. Submit a pull request
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
+- [Banking Event Platform](https://github.com/saundharpreet/banking-event-platform) - Parent project
+- [Top Cat POM](https://github.com/saundharpreet/top-cat-pom) - Parent Maven configuration
