@@ -47,8 +47,6 @@ Client library for interacting with the transaction API service.
 
 ## High Level Flow
 
-### Batch Flow
-
 ![Diagram](architecture-diagram.png)
 
 ## Technology Stack
