@@ -49,11 +49,7 @@ Client library for interacting with the transaction API service.
 
 ### Batch Flow
 
-File → Kafka → Database → API
-
-### Real Time Flow
-
-MQ → Kafka → Database → API
+![Diagram](architecture-diagram.png)
 
 ## Technology Stack
 
